@@ -1,0 +1,30 @@
+name: CI/CD ObRail Europe
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Configuration de Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Installation des dépendances
+        run: pip install -r requirements.txt
+
+      - name: Lancement des tests pytest avec rapport de couverture
+        run: pytest tests/ --cov=api --cov-report=term-missing -v
+
+      - name: Affichage du résumé des tests
+        if: always()
+        run: echo "Pipeline CI/CD ObRail Europe terminé — voir les logs ci-dessus pour les détails"
