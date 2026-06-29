@@ -1,0 +1,45 @@
+Card Name,Card Description,Due Date,List Name
+Chargement et exploration du dataset eu_trips_v2.csv,"Chargement du fichier CSV (142 420 lignes), analyse des colonnes disponibles, identification des valeurs manquantes et des types de données",05/30/2026,Terminé
+Nettoyage des données,"Suppression de route_long_name (44% manquants), vérification des NaN sur les features retenues, harmonisation des types",05/30/2026,Terminé
+Feature engineering,"Création de vitesse_moyenne_kmh, co2_par_km, is_diesel, is_electric. Création des variables cibles kgCO2_futur (4 scénarios) et substitution_avion (règles métier 300-1500km ET durée < 480min)",05/31/2026,Terminé
+Analyse exploratoire et heatmap de corrélation,"Visualisation des distributions, heatmap des corrélations (distance_km / consommation_totale = 0.99), identification de la circularité features/cibles",05/31/2026,Terminé
+Split 70/15/15 stratifié,"Découpage du dataset en jeu entraînement (70%), validation (15%) et test (15%). Stratification pour conserver le déséquilibre 91.6%/8.4% dans les 3 ensembles",06/01/2026,Terminé
+Pipeline sklearn régression CO2,"Construction du ColumnTransformer (StandardScaler sur numériques, OneHotEncoder sur catégorielles) intégré dans un Pipeline sklearn avec XGBoost Regressor",06/02/2026,Terminé
+Entraînement 3 modèles régression,"Entraînement et comparaison Régression Linéaire (baseline R²=0.61), Random Forest (MAE=0.024) et XGBoost (MAE=3.57 R²=0.9998). XGBoost retenu par GridSearchCV",06/03/2026,Terminé
+GridSearchCV régression CO2,"Optimisation XGBoost sur 18 combinaisons x 5 folds = 90 entraînements. Meilleurs paramètres : learning_rate=0.2, max_depth=7, n_estimators=200. Score R²=1.0000",06/03/2026,Terminé
+Cross-validation régression CO2,"Cross-validation 5 folds sur le modèle final. R² moyen = 1.0000, écart-type = 0.0001. Modèle stable confirmé",06/04/2026,Terminé
+Sauvegarde modèle régression,"Sauvegarde du Pipeline complet (préprocesseur + XGBoost) dans models/regression_co2.joblib via joblib.dump",06/04/2026,Terminé
+Encodage LabelEncoder classification,"Encodage type_train (electric=1, diesel=0) et country (DE=0, ES=1, FR=2, IT=3). Sauvegarde dans models/encoders.joblib",06/05/2026,Terminé
+Gestion déséquilibre des classes,"Calcul scale_pos_weight=10.92 pour XGBoost. class_weight=balanced pour Logistic Regression. Choix F1-macro comme métrique principale",06/05/2026,Terminé
+Entraînement 3 modèles classification,"Entraînement et comparaison Logistic Regression (F1=0.954), Random Forest (F1=1.000) et XGBoost (F1=0.993 Recall=100%). XGBoost retenu",06/05/2026,Terminé
+GridSearchCV classification,"Optimisation XGBoost sur 18 combinaisons x 5 folds. Meilleurs paramètres : learning_rate=0.2, max_depth=7, n_estimators=200. F1-macro=0.9974",06/06/2026,Terminé
+Cross-validation classification,"Cross-validation 5 folds. F1 moyen=0.9974, écart-type=0.0004. 1789/1792 liaisons substituables détectées. 3 manquées seulement",06/06/2026,Terminé
+Sauvegarde modèles classification,"Sauvegarde models/classification_substitution_avion.joblib, models/encoders.joblib et models/scaler.joblib",06/06/2026,Terminé
+Développement api.py FastAPI,"Développement API REST v2.0.0 avec 4 routes : GET /, GET /health, POST /predict/substitution, POST /predict/co2. Validation Pydantic, gestion des erreurs HTTP",06/07/2026,Terminé
+Tests API via Swagger,"Tests de toutes les routes via localhost:8000/docs. Paris-Marseille substituable=1, Paris-New York substituable=0, CO2 reference=104.34 kgCO2, CO2 électrification=64.74 kgCO2 (-38%)",06/07/2026,Terminé
+Script predict.py,"Script standalone classification. Charge encoders.joblib + scaler.joblib + classification.joblib et prédit sans notebook ni CSV",06/07/2026,Terminé
+Script predict_co2.py,"Script standalone régression CO2. Charge regression_co2.joblib (Pipeline complet) et prédit selon le scénario choisi",06/07/2026,Terminé
+Benchmark AWS SageMaker / Google Vertex AI / Azure ML,"Comparaison 3 plateformes cloud : prix entraînement, prix inférence, AutoML tabulaire, RGPD, vendor lock-in. Open source retenu : coût nul, contrôle total, RGPD natif",06/08/2026,Terminé
+Veille algorithmique et MLOps,"Veille sur XGBoost vs LightGBM vs CatBoost. Outils MLOps identifiés : MLflow, Evidently AI, Prometheus/Grafana. Documentation des risques et limites",06/08/2026,Terminé
+Rapport technique complet,"Rédaction rapport 22 pages : contexte, données, feature engineering, régression CO2, classification, API, benchmark, veille, limites, conclusion",06/10/2026,Terminé
+Support de soutenance slides,"Slides soutenance : contexte, données, cycle de vie IA, régression CO2, classification, GridSearchCV/cross-validation, API, benchmark, veille/limites, conclusion",06/11/2026,Terminé
+Mise en place dépôt GitHub,"Repo public github.com/Meech667/obrail-europe. Structure : notebooks, api.py, models/, figures/, eda/, README.md, requirements.txt",06/09/2026,Terminé
+Première soutenance — retour jury,"Présentation jury MINIO Casey et SIX Camille. Non validée. Manques : CI/CD absent, monitoring absent, gestion de projet insuffisante",06/12/2026,Terminé
+Tests pytest API,"5 tests : health, substitution substituable, substitution non substituable, CO2 reference, CO2 électrification. TestClient FastAPI sans serveur actif",06/20/2026,Terminé
+Pipeline CI/CD GitHub Actions,".github/workflows/ci.yml : déclenchement sur push/PR main, Python 3.10, pip install, pytest avec couverture. Skip automatique si joblib absents",06/20/2026,Terminé
+Journalisation API,"Ajout logging dans api.py : logs/api.log avec timestamp, route, paramètres, résultat, durée. Format parseable key=value. RGPD : features numériques uniquement",06/22/2026,Terminé
+Script monitoring.py,"Parsing api.log, calcul métriques par route, détection automatique incidents (taux erreur > 5%, durée > 2s). Rapport logs/monitoring_report.txt",06/22/2026,Terminé
+Script detect_drift.py,"Comparaison features entrantes vs statistiques entraînement via Z-score. Alerte si dérive > 2 écarts-types. Feedback loop MLOps documenté",06/23/2026,Terminé
+Dashboard Streamlit,"Métriques temps réel, graphique barres par route, camembert substituable/non substituable, timeline requêtes, tableau erreurs, alertes rouges automatiques",06/23/2026,Terminé
+Documentation monitoring MONITORING.md,"Architecture monitoring, format logs, politique RGPD, commandes lancement, feedback loop MLOps, outils production Prometheus Grafana Loki Evidently AI",06/24/2026,Terminé
+Documentation incidents INCIDENTS.md,"2 incidents documentés : encoders.joblib manquant au démarrage + cross-validation absente notebook 01. Cause, solution, mesures préventives",06/24/2026,Terminé
+Organisation dossier monitoring/,"Déplacement monitoring.py, detect_drift.py, dashboard.py, MONITORING.md, INCIDENTS.md dans monitoring/. Chemins relatifs mis à jour via __file__",06/24/2026,Terminé
+Mise à jour rapport — sections CI/CD et monitoring,"Ajout sections CI/CD et monitoring dans le rapport technique. Mise à jour tableau des livrables",06/26/2026,En cours
+Mise à jour slides — CI/CD et monitoring,"Ajout slide CI/CD (GitHub Actions, tests pytest, couverture) et slide monitoring (dashboard Streamlit, detect_drift, feedback loop MLOps)",06/27/2026,En cours
+Gestion de projet Trello,"Import CSV Trello avec toutes les tâches. Labels par domaine. Capture d écran du board pour démontrer la gestion de projet agile au jury",06/25/2026,En cours
+Démonstration dashboard monitoring en live,"Lancer api.py, effectuer des requêtes de test, montrer api.log qui se remplit, lancer monitoring.py, ouvrir dashboard Streamlit devant le jury",07/03/2026,En cours
+Améliorer la documentation de réentraînement,"Documenter la procédure complète de réentraînement des modèles : quand réentraîner, comment, quel pipeline suivre. Lien avec detect_drift.py",07/01/2026,Backlog
+Ajouter badge CI/CD dans le README,"Ajouter le badge GitHub Actions en haut du README pour montrer visuellement que le pipeline passe au vert",06/28/2026,Backlog
+Vérifier couverture de code pytest,"Analyser le rapport de couverture généré par pytest --cov et documenter les résultats dans le rapport technique",06/29/2026,Backlog
+Préparer démonstration CI/CD pour le jury,"Faire un push de test sur GitHub avant la soutenance pour montrer le pipeline qui se déclenche et passe au vert dans l onglet Actions",07/02/2026,Backlog
+Révision orale — CI/CD et monitoring,"Préparer les réponses aux questions jury sur : GitHub Actions, pytest, logs, Streamlit, detect_drift, feedback loop MLOps, Prometheus/Grafana en production",07/02/2026,Backlog
